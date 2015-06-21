@@ -8,19 +8,39 @@
 
 #import <Foundation/Foundation.h>
 
+
+
+
+@interface BankAccount : NSObject
+
+-(void)checkBalance;
+
+@property (nonatomic) int balance;
+
+@end
+
+@implementation BankAccount
+
+-(void)checkBalance{
+    NSLog(@"$%d in the account", self.balance);
+}
+
+@end
+
 @interface Patron : NSObject
-- (void)pocket:(int)p;
+
 - (void)with:(int)w;
 - (void)depo:(int)d;
+
+@property (nonatomic) int pocket;
+@property (nonatomic) BankAccount* account;
+
 @end
 
 @implementation Patron {
-    int pocket;
     int withdrawn;
     int deposit;
-}
-- (void) pocket:(int) p{
-    pocket = p;
+    
 }
 - (void)with: (int) w{
     withdrawn = w;
@@ -31,35 +51,26 @@
 
 @end
 
-
-@interface BankAccount : NSObject
-- (void)balance:(int)n;
-
-@end
-
-@implementation BankAccount {
-int accbalance;
-    int withdrawn;
-}
-- (void)balance: (int) n {
-    accbalance = n;
-}
-- (void)trans: (int) w{
-    withdrawn = w;
-}
-@end
-
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
     
-        BankAccount *testsAccount =[[BankAccount alloc] init];
-        [testsAccount balance:2];
+        BankAccount *BobsFamilyAccount =[[BankAccount alloc] init];
+        BobsFamilyAccount.balance = 600;
+        
+        [BobsFamilyAccount checkBalance];
+        
+        Patron *Bob = [[Patron alloc] init];
+        Bob.account = BobsFamilyAccount;
+        Bob.pocket = 20;
+        
+        Patron *BobsMom = [[Patron alloc] init];
+        BobsMom.account = BobsFamilyAccount;
+        BobsMom.pocket = 100;
         
         
-      printf("Did it work?");  
         
-        
-        
+        NSLog(@"Bob has $%d in the bank and $%d in his pocket", Bob.account.balance, Bob.pocket);
+        NSLog(@"Bob's Mom has $%d in the bank and $%d in her pocket", BobsMom.account.balance, BobsMom.pocket);
     }
     return 0;
 }
