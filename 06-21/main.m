@@ -23,46 +23,65 @@
 @implementation BankAccount
 
 -(void)checkBalance{
-    NSLog(@"$%d in the account", self.balance);
+    NSLog(@"$%d in %@", self.balance, self.name);
+    
 }
 
 @end
 
 @interface Patron : NSObject
 
-- (void)with:(int)w;
-- (void)depo:(int)d;
+- (void)withdrawlAmount:(int)amount fromAccount:(BankAccount *)account;
+- (void)depositAmount:(int)ammount toAccount:(BankAccount *)account;
 - (void)checkassets;
+- (void)addAccount:(BankAccount *)account;
 
 @property (nonatomic) int pocket;
-@property (nonatomic) BankAccount* account;
+@property (nonatomic) NSMutableArray* accounts;
 @property (nonatomic) NSString *name;
 @end
 
 @implementation Patron {
-    int withdrawn;
-    int deposit;
+    int withdrawnlAmount;
+    int depositAmount;
     
 }
-- (void)with: (int) w{
-    withdrawn = w;
-    if (withdrawn <= self.account.balance) {
+- (void) addAccount:(BankAccount *)account{
+    // run a check to make sure that self.account is not nil
+    if (self.accounts == nil) {
+        self.accounts = [[NSMutableArray alloc] init];
+    }
+    [self.accounts addObject:account];
+}
+
+- (BankAccount *)defaultAccount {
+    return [self.accounts firstObject];
+}
+- (BankAccount *)accountAtIndex:(int)index{
+    return self.accounts[index];
+}
+//[Bob accountAtIndex:1];
+
+
+- (void)withdrawlAmount:(int)amount fromAccount:(BankAccount *)account{
+    withdrawnlAmount = amount;
+    if (withdrawnlAmount <= account.balance) {
         
-        self.account.balance -= withdrawn;
-        self.pocket += withdrawn;
-        NSLog(@"%@ Withdrawned %d", self.name, withdrawn);
+        account.balance -= withdrawnlAmount;
+        self.pocket += withdrawnlAmount;
+        NSLog(@"%@ Withdrawned %d from %@", self.name, withdrawnlAmount, account.name);
     }
     else {
         NSLog(@"Insuffiencet Funds");
     }
 }
-- (void)depo: (int) d{
-    deposit = d;
-    if (deposit<= self.pocket) {
+- (void)depositAmount:(int)ammount toAccount:(BankAccount *)account{
+    depositAmount = ammount;
+    if (depositAmount<= self.pocket) {
         
-        self.account.balance += deposit;
-        self.pocket -= deposit;
-        NSLog(@"%@ Deposited $%d", self.name, deposit);
+        account.balance += depositAmount;
+        self.pocket -= depositAmount;
+        NSLog(@"%@ Deposited $%d into %@", self.name, depositAmount, account.name);
     }
     else
     {
@@ -71,7 +90,10 @@
 }
 
 -(void) checkassets{
-     NSLog(@"Bob's Mom has $%d in %@ and $%d in their wallet", self.account.balance, self.account.name, self.pocket);
+    NSLog(@"%@ has $%d in their wallet ", self.name, self.pocket);
+    for (int i = 0; i < [self.accounts count]; i++){
+        NSLog(@"and $%d in %@",[self accountAtIndex:i].balance, [self accountAtIndex:i].name);
+    }
 }
 
 @end
@@ -82,23 +104,33 @@ int main(int argc, const char * argv[]) {
         BankAccount *BobsFamilyAccount =[[BankAccount alloc] init];
        
         BobsFamilyAccount.balance = 600;
-        [BobsFamilyAccount checkBalance];
         BobsFamilyAccount.name = @"Bob's Family Account";
+        [BobsFamilyAccount checkBalance];
+        
+        BankAccount *BobsOffShoreAccount = [[BankAccount alloc] init];
+        BobsOffShoreAccount.balance = 20000;
+        BobsOffShoreAccount.name = @"Bob's Off-Shore Account";
         
         Patron *Bob = [[Patron alloc] init];
-        Bob.account = BobsFamilyAccount;
+        [Bob addAccount:BobsFamilyAccount];
+        [Bob addAccount:BobsOffShoreAccount];
         Bob.pocket = 20;
         Bob.name = @"Bob";
         
-        [Bob depo:10];
-        
+
         Patron *BobsMom = [[Patron alloc] init];
-        BobsMom.account = BobsFamilyAccount;
+        [BobsMom addAccount:BobsFamilyAccount];
+
+        
         BobsMom.pocket = 100;
         BobsMom.name = @"Bob's Mom";
+        [Bob depositAmount:10 toAccount:[Bob defaultAccount]];
+        [Bob depositAmount:10 toAccount:[Bob accountAtIndex:1]];
         
        [Bob checkassets];
        [BobsMom checkassets];
+        [BobsMom withdrawlAmount:610 fromAccount:[BobsMom defaultAccount]];
+        
     }
     return 0;
 }
