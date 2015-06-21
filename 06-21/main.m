@@ -16,6 +16,7 @@
 -(void)checkBalance;
 
 @property (nonatomic) int balance;
+@property (nonatomic) NSString *name;
 
 @end
 
@@ -31,10 +32,11 @@
 
 - (void)with:(int)w;
 - (void)depo:(int)d;
+- (void)checkassets;
 
 @property (nonatomic) int pocket;
 @property (nonatomic) BankAccount* account;
-
+@property (nonatomic) NSString *name;
 @end
 
 @implementation Patron {
@@ -44,33 +46,59 @@
 }
 - (void)with: (int) w{
     withdrawn = w;
+    if (withdrawn <= self.account.balance) {
+        
+        self.account.balance -= withdrawn;
+        self.pocket += withdrawn;
+        NSLog(@"%@ Withdrawned %d", self.name, withdrawn);
+    }
+    else {
+        NSLog(@"Insuffiencet Funds");
+    }
 }
 - (void)depo: (int) d{
     deposit = d;
+    if (deposit<= self.pocket) {
+        
+        self.account.balance += deposit;
+        self.pocket -= deposit;
+        NSLog(@"%@ Deposited $%d", self.name, deposit);
+    }
+    else
+    {
+        NSLog(@" You don't have enough money");
+    }
+}
+
+-(void) checkassets{
+     NSLog(@"Bob's Mom has $%d in %@ and $%d in their wallet", self.account.balance, self.account.name, self.pocket);
 }
 
 @end
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-    
-        BankAccount *BobsFamilyAccount =[[BankAccount alloc] init];
-        BobsFamilyAccount.balance = 600;
         
+        BankAccount *BobsFamilyAccount =[[BankAccount alloc] init];
+       
+        BobsFamilyAccount.balance = 600;
         [BobsFamilyAccount checkBalance];
+        BobsFamilyAccount.name = @"Bob's Family Account";
         
         Patron *Bob = [[Patron alloc] init];
         Bob.account = BobsFamilyAccount;
         Bob.pocket = 20;
+        Bob.name = @"Bob";
+        
+        [Bob depo:10];
         
         Patron *BobsMom = [[Patron alloc] init];
         BobsMom.account = BobsFamilyAccount;
         BobsMom.pocket = 100;
+        BobsMom.name = @"Bob's Mom";
         
-        
-        
-        NSLog(@"Bob has $%d in the bank and $%d in his pocket", Bob.account.balance, Bob.pocket);
-        NSLog(@"Bob's Mom has $%d in the bank and $%d in her pocket", BobsMom.account.balance, BobsMom.pocket);
+       [Bob checkassets];
+       [BobsMom checkassets];
     }
     return 0;
 }
