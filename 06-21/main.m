@@ -11,8 +11,9 @@
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
     
+
+      printf("Did it work?");  
         
-     // Hi my name is not bob. 
         
     }
     return 0;
